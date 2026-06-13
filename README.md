@@ -86,3 +86,22 @@ degrades the activation. Writeup of that port is separate.  The local model is b
 - Weights + calibration amaxes + corpora: <https://huggingface.co/brandonmusic/MiniMax-M3-NVFP4>
   - `calibration/m3_merged_amax_gatefix.safetensors` regenerates the export in ~25 min with **no recalibration**.
   - `calibration/data/*.jsonl` are the quant-toolkit corpora, to recalibrate from scratch.
+
+## Quantization coverage (and an honest note on split precision)
+
+Per-module precision in the published export:
+
+| Module | Precision |
+|---|---|
+| Routed experts — `gate_proj` / `up_proj` / `down_proj` (128 × 57 layers) | **NVFP4** |
+| Dense-MLP (0–2) & shared-expert `down_proj` | **NVFP4** |
+| Dense-MLP (0–2) & shared-expert `gate_up_proj` | BF16 (see below) |
+| Attention, router (`mlp.gate`+bias), indexer, embeddings, `lm_head`, norms | BF16 |
+| Vision tower + multimodal projector | BF16 (fully preserved) |
+
+**Why dense/shared `gate_up_proj` is BF16** — this is the residue of gotcha #3 (the `*gate*` over-match), kept transparent rather than hidden. The buggy glob disabled the quantizer for *every* gate-named module: routed `gate_proj` **and** dense/shared `gate_up_proj`. Recovering amaxes post-hoc (to avoid a 7 h recalibration) is only exact for some:
+
+- Routed `gate_proj` has a twin — `up_proj` takes the identical input, so its input amax is copyable bit-for-bit and the weight amax is recomputable from source. → **NVFP4**.
+- Dense/shared `gate_up_proj` is a single *fused* `[gate; up]` linear with **no twin**; fabricating an input amax would be guessing, so it stayed **BF16**. The matching `down_proj` was never hit by the glob, stayed calibrated, and is NVFP4 — hence the within-MLP split.
+
+Functionally fine (BF16 gate_up is conservative, costs a few GB). For uniform precision, recalibrate from scratch with the corpora under `calibration/data/` in the model repo — the glob is fixed in `toolkit/minimax_m3.py`.
