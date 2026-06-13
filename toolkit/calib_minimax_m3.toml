@@ -1,0 +1,13 @@
+# Calibration datasets for MiniMax M3 (large-sample master-amax run).
+
+[[dataset]]
+path = "text/deep_calib.jsonl"
+max_len = 8192
+
+[[dataset]]
+path = "text/diverse_calib.jsonl"
+max_len = 4096
+
+[[dataset]]
+path = "text/agentic_coding_calib_v3.jsonl"
+max_len = 4096
