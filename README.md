@@ -74,3 +74,15 @@ b12x-based stack: golden-gated kernel port (SM100 oracle captures included
 in the HF repo under `msa_golden/`), swigluoai-patched b12x fused MoE, and
 a fail-closed runtime probe that rejects any MoE backend that silently
 degrades the activation. Writeup of that port is separate.  The local model is being downloaded as we speak to check teh accuracy of the model, and to get a full docker image and recipe.   This read me will be updated.
+
+## Acknowledgements
+
+- **Luke Alonso** ([HuggingFace](https://huggingface.co/lukealonso) · [GitHub](https://github.com/lukealonso)) — author of the **b12x** SM120 kernel stack and the per-expert [quant-toolkit](https://github.com/local-inference-lab/quant-toolkit) calibration pipeline this recipe is built on.
+- **[local-inference-lab/quant-toolkit](https://github.com/local-inference-lab/quant-toolkit)** — the streaming per-expert calibration toolkit and the calibration corpora used here (published in the model repo under `calibration/data/`).
+- **[MiniMax](https://huggingface.co/MiniMaxAI)** — the base model, MiniMax-M3.
+
+## Artifacts
+
+- Weights + calibration amaxes + corpora: <https://huggingface.co/brandonmusic/MiniMax-M3-NVFP4>
+  - `calibration/m3_merged_amax_gatefix.safetensors` regenerates the export in ~25 min with **no recalibration**.
+  - `calibration/data/*.jsonl` are the quant-toolkit corpora, to recalibrate from scratch.
