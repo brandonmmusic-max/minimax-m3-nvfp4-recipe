@@ -73,4 +73,4 @@ M3's MSA attention + this NVFP4 format run on SM120 (RTX PRO 6000) via a
 b12x-based stack: golden-gated kernel port (SM100 oracle captures included
 in the HF repo under `msa_golden/`), swigluoai-patched b12x fused MoE, and
 a fail-closed runtime probe that rejects any MoE backend that silently
-degrades the activation. Writeup of that port is separate.
+degrades the activation. Writeup of that port is separate.  The local model is being downloaded as we speak to check teh accuracy of the model, and to get a full docker image and recipe.   This read me will be updated.
